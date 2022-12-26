@@ -14,25 +14,31 @@
 		<label>{label}</label>
 	{/if}
 	<div class="range__wrapper">
-		<input bind:value type="range" {min} {max} />
-		<div class="value">{value}</div>
+		<div class="range__slider">
+			<input bind:value type="range" {min} {max} />
+		</div>
+		<div class="range__value">{value}</div>
 	</div>
 </div>
 
 <style>
 	.range__wrapper {
-		display: flex;
+		display: grid;
+		grid-template-columns: 3fr 1fr;
 		align-items: center;
 		gap: 1em;
 	}
 
-	input {
-		margin-bottom: 0;
+	.range__slider {
+		grid-column: 1;
 	}
 
-	.input,
-	._value {
-		display: inline-block;
-		vertical-align: middle;
+	.range__value {
+		grid-column: 2;
+		width: 80px;
+	}
+
+	input {
+		margin-bottom: 0;
 	}
 </style>

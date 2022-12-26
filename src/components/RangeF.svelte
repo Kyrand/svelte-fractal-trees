@@ -8,7 +8,7 @@
 	export let label = null
 	let set = false
 	let range = max - min
-	let rvalue = rmax * (range * (value - min))
+	let rvalue = rmax * ((value - min) / range)
 
 	$: {
 		console.log(range, rvalue, rmax)
@@ -30,13 +30,14 @@
 		<div class="range__slider">
 			<input bind:value={rvalue} type="range" min={rmin} max={rmax} />
 		</div>
-		<div class="range__value">{value}</div>
+		<div class="range__value">{value.toFixed(2)}</div>
 	</div>
 </div>
 
 <style>
 	.range__wrapper {
-		grid-template-columns: 4fr 1fr;
+		display: grid;
+		grid-template-columns: 3fr 1fr;
 		align-items: center;
 		gap: 1em;
 	}
@@ -47,6 +48,7 @@
 
 	.range__value {
 		grid-column: 2;
+		width: 80px;
 	}
 
 	input {

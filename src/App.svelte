@@ -8,7 +8,7 @@
 	import { tweened } from 'svelte/motion'
 	import { cubicOut } from 'svelte/easing'
 
-	import Branch from './components/Tree/Branch.svelte'
+	import Tree from './components/Tree/Tree.svelte'
 
 	import Switch from './components/Switch.svelte'
 	import Range from './components/Range.svelte'
@@ -17,19 +17,50 @@
 	import Legend from './components/Legend.svelte'
 
 	let tweenedT = 1
+	let scale = 1
 	let duration = 3000
-	let branches = 10
+	let branchNum = 5
+	let branchCount = 4
 	let t = 1.0
 	let scaleFac = 0.5
-	let cx = 0.5,
-		cy = 0.5,
-		dx = 0.5,
-		dy = 1,
-		bp = 0.5
+	let cx = rv(-0.2, 0.2),
+		cy = rv(0.3, 0.7),
+		dx = rv(-0.2, 0.2),
+		dy = rv(0.8, 1),
+		bp = 0.5,
+		rot = 45
+	let markers = true
 
 	// tweening
-	let bv = { cx, cy, dx, dy, bp }
+	let bv = { scaleFac, cx, cy, dx, dy, bp, rot }
+	let branches
+	randomizeBranches()
+	console.log(branches)
+	//let bv = branches[0]
+	// functions
+	function rv(min, max) {
+		return min + Math.random() * (max - min)
+	}
 
+	function makeRandomBranch() {
+		return {
+			scaleFac: rv(0.5, 0.7),
+			rot: rv(-135, 135),
+			cx: rv(-1, 1),
+			cy: rv(0, 1),
+			dx: rv(-1, 1),
+			dy: rv(0, 1),
+			bp: rv(0.5, 1)
+		}
+	}
+
+	function randomizeBranches() {
+		branches = [
+			...Array(branchCount)
+				.fill(0)
+				.map(() => makeRandomBranch())
+		]
+	}
 	// $: scaleFac = _scaleFac / 100
 	// console logs
 	$: console.log('tweenedT: ', tweenedT)
@@ -47,28 +78,20 @@
 			<!-- <Switch bind:flag={stackLines} label="Stack the lines" id="stackLines" />
 			<Switch bind:flag={normalizeAxes} label="Dynamic y axis" id="normAxes" /> -->
 			<Range bind:value={duration} min={0} max={5000} label="Transition duration (ms)" />
-			<RangeF bind:value={scaleFac} label="Scale factor" />
-			<RangeF bind:value={bv.cx} label="Curve mid x" />
+			<RangeF bind:value={bv.scaleFac} label="Scale factor" />
+			<RangeF bind:value={bv.cx} label="Curve mid x" min={-1.0} max={1.0} />
 			<RangeF bind:value={bv.cy} label="Curve mid y" />
-			<RangeF bind:value={bv.dx} label="Curve end x" />
+			<RangeF bind:value={bv.dx} label="Curve end x" min={-1.0} max={1.0} />
 			<RangeF bind:value={bv.dy} label="Curve end y" />
-			<RangeF bind:value={bv.bp} label="Branch position" />
+			<Switch bind:flag={markers} label="Show leaves" />
+			<button on:click={randomizeBranches}>Randomize branches</button>
 		</div>
 		<div class="chart-container">
-			<LayerCake padding={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+			<LayerCake>
 				<Svg>
-					<g transform="translate(300, 600) rotate(180)">
-						<Branch
-							{branches}
-							{scaleFac}
-							cx={2 * (bv.cx - 0.5)}
-							cy={bv.cy}
-							dx={2 * (bv.dx - 0.5)}
-							dy={bv.dy}
-							bp={bv.bp}
-						/>
+					<g transform={`translate(300, 600) rotate(180) scale(${scale})`}>
+						<Tree {...bv} {branches} {branchNum} {markers} />
 					</g>
-					<Tweener {t} bind:tweenedT {duration} />
 				</Svg>
 			</LayerCake>
 		</div>
@@ -78,7 +101,7 @@
 <style>
 	/*
     The wrapper div needs to have an explicit width and height in CSS.
-    It can also be a flexbox child or CSS grid element.
+					<g transform="translate(300, 600) rotate(180)">
     The point being it needs dimensions since the <LayerCake> element will
     expand to fill it.
   */
