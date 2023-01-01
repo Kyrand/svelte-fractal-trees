@@ -1,47 +1,61 @@
-# Svelte + Vite
+# Svelte Fractal Trees
 
-This template should help get you started developing with Svelte in Vite.
+I wanted to try Svelte's self-calling components and building some fractal trees recursively seemed a good way to do that and end up with something pretty for an xmas project.
 
-## Recommended IDE Setup
+![Svelte fractal trees](./svelte-fractal-trees.png)
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+The trees are made by generating a few random variables specifying branch orientation relative to the parent branch (or trunk), branch scale and the branch curve, made using SVG bezier curves. Another key variable is the number of times the tree branches - too large and the SVG will get sluggish.
 
-## Need an official Svelte framework?
+If the tree is small enough (around three branches with five branching steps) it can support Svelte transitions, moving smoothly from one tree to another in a rather cool way. You can also turn the leaves on or off - by default these are added to the end of the last branches.
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+The key recursive element is the use of Svelte's `svelte:self` tag, allowing a self-calling component:
 
-## Technical considerations
-
-**Why use this over SvelteKit?**
-
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
-
-This template contains as little as possible to get started with Vite + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
-
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
-
-**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
-
-Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
-
-**Why include `.vscode/extensions.json`?**
-
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `checkJs` in the JS template?**
-
-It is likely that most cases of changing variable types in runtime are likely to be accidental, rather than deliberate. This provides advanced typechecking out of the box. Should you like to take advantage of the dynamically-typed nature of JavaScript, it is trivial to change the configuration.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/rixo/svelte-hmr#svelte-hmr).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```js
-// store.js
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
+```html
+<g>
+  <!-- Draw branches and leaves -->
+  <path
+    bind:this="{el}"
+    {d}
+    stroke="brown"
+    fill="transparent"
+    stroke-width="{6}"
+  />
+  <!-- ... -->
+  {#if branchNum > 0}
+    {#each branches as b}
+  <!-- Use svelte:self to add branches to this branch -->
+  <g class="branch" transform={branchTransform(b)}>
+    <svelte:self
+      {...b}
+      {branches}
+      {markers}
+      {markerSize}
+      {markerY}
+      branchNum={branchNum-1}
+    />
+  </g>
+    {/each}
+  {/if}
+</g>
 ```
+
+## Get started
+
+Install the dependencies...
+
+```bash
+npm install
+npm run build && npm run preview
+```
+
+Your app will be running at [localhost:4173](http://localhost:4173).
+
+## Developing
+
+```sh
+# if you didn't already install, run the install command
+npm install
+npm run dev
+```
+
+Your app will be running at [localhost:5173](http://localhost:5173).
