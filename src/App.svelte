@@ -1,20 +1,11 @@
 <script>
-	import { LayerCake, Svg, flatten } from 'layercake'
-	import { stack, max, extent } from 'd3'
-	import { scaleOrdinal } from 'd3-scale'
-	import { format, precisionFixed } from 'd3-format'
-	import { timeParse, timeFormat } from 'd3-time-format'
-	import { schemeTableau10, rollup, group } from 'd3'
 	import { tweened } from 'svelte/motion'
-	import { cubicOut } from 'svelte/easing'
 
 	import Tree from './components/Tree/Tree.svelte'
 
 	import Switch from './components/Switch.svelte'
 	import Range from './components/Range.svelte'
 	import RangeF from './components/RangeF.svelte'
-	import Tweener from './components/layercake/Tweener.svelte'
-	import Legend from './components/Legend.svelte'
 
 	let tweenedT = 1
 	let scale = 0.7
